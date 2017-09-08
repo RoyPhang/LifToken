@@ -60,6 +60,12 @@ contract('LifCrowdsale Property-based test', function(accounts) {
     if (state.weiPerUSDinTGE > 0) {
       assert.equal(state.crowdsaleFunded, await crowdsale.funded());
     }
+
+    // TODO: check claimed eth amount
+    //
+    // TODO: check eth balances
+    _.forEach(state.ethBalances, (balance, accountIndex) =>
+      balance.should.be.bignumber.equal(web3.eth.getBalance(accountIndex)));
   }
 
   let runGeneratedCrowdsaleAndCommands = async function(input) {
@@ -134,12 +140,16 @@ contract('LifCrowdsale Property-based test', function(accounts) {
       // issue & transfer tokens for founders payments
       // let maxFoundersPaymentTokens = crowdsaleData.maxTokens * (crowdsaleData.ownerPercentage / 1000.0) ;
 
+      const initialEthBalances = _.reduce(accounts, (balances, account) =>
+        balances[accounts.indexOf(account)] = web3.eth.getBalance(account),
+        {}
+      );
       var state = {
         crowdsaleData: crowdsaleData,
         crowdsaleContract: crowdsale,
         token: token,
         balances: {},
-        ethBalances: {},
+        ethBalances: initialEthBalances,
         allowances: {},
         purchases: [],
         presalePurchases: [],

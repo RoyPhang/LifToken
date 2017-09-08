@@ -390,7 +390,12 @@ let runClaimEthCommand = async (command, state) => {
 
     assert.equal(false, shouldThrow, "claimEth should have thrown but it didn't");
 
-    state.claimedEth[command.account] = _.sumBy(purchases, (p) => p.amount);
+    const claimedEthAmount = _.reduce(
+      _.map(purchases, (p) => p.wei),
+      (accum, wei) => accum.plus(wei)
+    );
+    state.claimedEth[command.account] = claimedEthAmount;
+    state.ethBalances[command.account] = state.ethBalances[command.account].plus(claimedEth);
   } catch(e) {
     assertExpectedException(e, shouldThrow, hasZeroAddress, state, command);
   }
